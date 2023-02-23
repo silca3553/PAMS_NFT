@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+//0x804c8e9d36dc3954046260Db0047696281878Df6
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -6,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol"; /
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract PamPlNet is ERC721URIStorage, Ownable{
+contract PamPlNet_TEST is ERC721URIStorage, Ownable{
 
     //owner() pubilc view : 관리자 address 반환 (Ownable.sol)
 	//_owner private: 관리자 address (Ownable.sol)
@@ -23,7 +24,7 @@ contract PamPlNet is ERC721URIStorage, Ownable{
 
 	Counters.Counter totalCount; //발행된 총 NFT 개수
 
-	constructor() ERC721("PamPlNet", "PPN") {}
+	constructor() ERC721("PamPlNet_V2", "PPN") {}
 
 	struct tokenInfo {
         uint id;
@@ -60,15 +61,16 @@ contract PamPlNet is ERC721URIStorage, Ownable{
         address _owner,
         bool _saleable,
 		string memory _baseURI,
-        uint32 count
+        uint32 _startId,
+		uint32 _count
 		) public onlyOwner
 	{
         string memory tokenURI;
-        for(uint i=0; i< count; i++)
+        for(uint i= 0 ; i< _count ; i++)
         {   
             _mint( _owner , tokens.length);
 
-            tokenURI = string(abi.encodePacked( _baseURI, Strings.toString(i) , ".json"));
+            tokenURI = string(abi.encodePacked( _baseURI, Strings.toString(_startId+i) , ".json"));
 
 		    _createToken(_saleable, tokenURI);
 		    totalCount.increment();
@@ -80,17 +82,18 @@ contract PamPlNet is ERC721URIStorage, Ownable{
         address[] memory _studentList,
         bool _saleable,
 		string memory _baseURI,
-        uint32 count
+        uint32 _startId,
+		uint32 _count
         ) public onlyOwner {
         
-        require( _studentList.length == count, "error: count error");
+        require( _studentList.length == _count, "error: count error");
         
         string memory tokenURI;
 
-		for( uint32 i = 0; i< count ; i++ )
+		for( uint32 i = 0; i< _count ; i++ )
 		{	
             _mint( _studentList[i] , tokens.length);
-            tokenURI = string(abi.encodePacked( _baseURI, Strings.toString(i), ".json"));
+            tokenURI = string(abi.encodePacked( _baseURI, Strings.toString( _startId + i ), ".json"));
 		    _createToken( _saleable, tokenURI);
 		    totalCount.increment();
 		}
@@ -108,7 +111,6 @@ contract PamPlNet is ERC721URIStorage, Ownable{
 	
 	//dev@ address가 소유한 token들의 id 리스트 반환
 	function getIdsbyOwner(address _owner) public view returns(uint32[] memory) {
-		require( balanceOf(_owner) != 0, "Owner did not have token.");
 		
 		uint cnt =0;
 		uint32[] memory idList = new uint32[]( balanceOf(_owner) );
@@ -122,7 +124,6 @@ contract PamPlNet is ERC721URIStorage, Ownable{
 
 	//dev@ address가 소유한 token 정보 반환
 	function getTokensbyOwner(address _owner) public view returns(tokenInfo[] memory) {
-		require( balanceOf(_owner) != 0, "Owner did not have token.");
 		
 		uint cnt =0;
 		tokenInfo[] memory tokenList = new tokenInfo[]( balanceOf(_owner) );
@@ -136,8 +137,7 @@ contract PamPlNet is ERC721URIStorage, Ownable{
 
     //dev@ address가 소유한 token들의 id 리스트 반환
 	function getURIsbyOwner(address _owner) public view returns(string[] memory) {
-		require( balanceOf(_owner) != 0, "Owner did not have token.");
-		
+
 		uint cnt =0;
 		string[] memory URIList = new string[]( balanceOf(_owner) );
 		for(uint32 i =0 ; i< tokens.length ; i++){
@@ -249,9 +249,11 @@ contract PamPlNet is ERC721URIStorage, Ownable{
     }
 
 	//dev@ 토큰의 가격을 반환하는 함수
+	/*
     function getPrice(uint256 _tokenId) view public returns(uint256)
     {
 		require(tokenPrice[_tokenId] != 0, "This NFT is not saling.");
         return tokenPrice[_tokenId];
     }
+	*/
 }
